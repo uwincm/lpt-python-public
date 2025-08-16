@@ -157,7 +157,12 @@ def read_generic_netcdf(fn, variable_names=('lon','lat','rain'), dt_to_use=None)
         DATA['lon'][lon_lt_0] += 360.0
         DATA['lon'] = np.concatenate((DATA['lon'][lon_ge_0], DATA['lon'][lon_lt_0]))
         DATA['data'] = np.concatenate((DATA['data'][:,lon_ge_0], DATA['data'][:,lon_lt_0]), axis=1)
-
+    
+    # Ensure DATA['data'] is a 2-D array by squeezing singleton dimensions
+    DATA['data'] = np.squeeze(DATA['data'])
+    if DATA['data'].ndim != 2:
+        raise ValueError("DATA['data'] is not 2-D after squeezing singleton dimensions.")
+    
     return DATA
 
 
