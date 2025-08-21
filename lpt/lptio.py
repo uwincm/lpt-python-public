@@ -359,7 +359,8 @@ def lpt_system_tracks_output_netcdf(fn, TIMECLUSTERS, dataset, plotting,
             freq=str(dataset['data_time_interval'])+'H',
             calendar=this_tc['datetime'][0].calendar
         )
-        this_lpt_datetimes = [dt.datetime(x.year, x.month, x.day, x.hour, x.minute, x.second) for x in this_lpt_datetimes.to_list()]
+        cal = this_lpt_datetimes[0].calendar if hasattr(this_lpt_datetimes[0], 'calendar') else 'standard'
+        this_lpt_datetimes = [cftime.datetime(x.year, x.month, x.day, x.hour, x.minute, x.second, calendar=cal) for x in this_lpt_datetimes.to_list()]
 
         lptid_collect = np.append(np.append(lptid_collect, np.ones(len(this_lpt_datetimes))*this_tc['lpt_id']),MISSING)
         this_timestamp = [(x - REFTIME).total_seconds()/3600.0 for x in this_lpt_datetimes]
