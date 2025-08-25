@@ -53,6 +53,7 @@ def readdata(datetime_to_read, dataset_options_dict, verbose=None):
                 , variable_names = variable_names
                 , data_dir = dataset_options_dict['raw_data_parent_dir']
                 , fmt = dataset_options_dict['file_name_format']
+                , area = dataset_options_dict['area']
                 , verbose = verbose_actual)
 
     elif dataset_options_dict['raw_data_format'] == 'generic_netcdf_with_multiple_times':
@@ -66,6 +67,7 @@ def readdata(datetime_to_read, dataset_options_dict, verbose=None):
                 , dt_to_use = datetime_to_read
                 , data_dir = dataset_options_dict['raw_data_parent_dir']
                 , fmt = dataset_options_dict['file_name_format']
+                , area = dataset_options_dict['area']
                 , verbose = verbose_actual)
 
     elif dataset_options_dict['raw_data_format'] == 'tmpa':
@@ -123,7 +125,8 @@ def readdata(datetime_to_read, dataset_options_dict, verbose=None):
 ## Read functions for generic NetCDF data.
 ################################################################################
 
-def read_generic_netcdf(fn, variable_names=('lon','lat','rain'), dt_to_use=None):
+def read_generic_netcdf(fn, variable_names=('lon','lat','rain'), 
+    area=None, dt_to_use=None):
     """
     DATA = read_generic_netcdf(fn)
 
@@ -140,8 +143,13 @@ def read_generic_netcdf(fn, variable_names=('lon','lat','rain'), dt_to_use=None)
 
     DATA = {}
     with xr.open_dataset(fn) as DS:
+
+        if area is not None:
+            DS = DS.sel(lon=slice(area[0], area[1]), lat=slice(area[2], area[3]))
         DATA['lon'] = DS[variable_names[0]].values
         DATA['lat'] = DS[variable_names[1]].values
+        if len(DATA['lon']) == 0 or len(DATA['lat']) == 0:
+            raise ValueError(f"ERROR! No data found. Check that your area selection {area} is correct. Check lon range.")
         ## If no time variable, just retrieve the 2-D data as it is.
         if not dt_to_use is None: #'time' in list(DS.variables):
             DATA['data'] = DS.sel({variable_names[2]:str(dt_to_use)},method='nearest')[variable_names[3]].values
@@ -162,13 +170,13 @@ def read_generic_netcdf(fn, variable_names=('lon','lat','rain'), dt_to_use=None)
     DATA['data'] = np.squeeze(DATA['data'])
     if DATA['data'].ndim != 2:
         raise ValueError("DATA['data'] is not 2-D after squeezing singleton dimensions.")
-    
+
     return DATA
 
 
 def read_generic_netcdf_at_datetime(dt, data_dir='.'
         , variable_names=('lon','lat','rain'), dt_to_use=None, fmt='gridded_rain_rates_%Y%m%d%H.nc'
-        , verbose=False):
+        , area=[0,360,-90,90], verbose=False):
 
     fn = (data_dir + '/' + dt.strftime(fmt))
     DATA=None
@@ -180,7 +188,8 @@ def read_generic_netcdf_at_datetime(dt, data_dir='.'
             print(fn)
         DATA=read_generic_netcdf(fn,
             variable_names = variable_names,
-            dt_to_use = dt_to_use)
+            dt_to_use = dt_to_use,
+            area = area)
 
     return DATA
 
