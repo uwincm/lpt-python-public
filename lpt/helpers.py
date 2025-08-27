@@ -254,6 +254,16 @@ def filter_str(stdev):
     return strout
 
 
+def thresh_str(thresh):
+
+    if isinstance(thresh, (int, np.integer)) or np.isclose(thresh % 1, 0, atol=0.01):
+        strout = str(int(round(thresh)))
+    else:
+        strout = f"{thresh:.2f}"
+
+    return strout
+
+
 def do_lpo_calc(end_of_accumulation_time0, begin_time, dataset, lpo_options,
     output, plotting):
     """
@@ -272,7 +282,7 @@ def do_lpo_calc(end_of_accumulation_time0, begin_time, dataset, lpo_options,
         output['data_dir'] + '/' + dataset['label']
         + '/' + filter_str(lpo_options['filter_stdev'])
         + '_' + str(int(lpo_options['accumulation_hours'])) + 'h'
-        + '/thresh' + str(int(lpo_options['thresh']))
+        + '/thresh' + thresh_str(lpo_options['thresh'])
         + '/objects/' + end_of_accumulation_time0.strftime(
                             output['sub_directory_format'])
     )
