@@ -208,11 +208,7 @@ def lpt_driver(dataset,plotting,output,lpo_options,lpt_options
             fig2 = plt.figure(2)
             ax2 = fig2.add_subplot(111)
 
-            # matplotlib needs datetime.datetime to plot.
-            # Can't use cftime.datetime.
-            dt_list = [dt.datetime(x.year,x.month,x.day,
-                                x.hour,x.minute,x.second) for x in time_list]
-
+            dt_list = time_list
             timelon_rain = []
             for tt, this_dt in enumerate(time_list):
                 try:
