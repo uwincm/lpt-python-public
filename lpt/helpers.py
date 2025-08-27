@@ -230,15 +230,28 @@ def calc_grid_cell_area(lon, lat, verbose=False):
 
 
 def filter_str(stdev):
-    if type(stdev) == int:
-        strout = 'g' + str(int(stdev))
-    elif type(stdev) == list:
-        strout = 'g' + str(int(stdev[0])) + 'x' + str(int(stdev[1]))
-    else:
-        print('Warning: Wrong data type!')
-        strout = None
-    return strout
 
+    if type(stdev) == list:
+        if isinstance(stdev[0], (int, np.integer)) or np.isclose(stdev[0] % 1, 0, atol=0.01):
+            filter_stdev_str0 = str(int(round(stdev[0])))
+        else:
+            filter_stdev_str0 = f"{stdev[0]:.2f}"
+
+        if isinstance(stdev[1], (int, np.integer)) or np.isclose(stdev[1] % 1, 0, atol=0.01):
+            filter_stdev_str1 = str(int(round(stdev[1])))
+        else:
+            filter_stdev_str1 = f"{stdev[1]:.2f}"
+
+        strout = 'g' + filter_stdev_str0 + 'x' + filter_stdev_str1
+
+    else:
+        if isinstance(stdev, (int, np.integer)) or np.isclose(stdev % 1, 0, atol=0.01):
+            filter_stdev_str = str(int(round(stdev)))
+        else:
+            filter_stdev_str = f"{stdev:.2f}"
+        strout = 'g' + filter_stdev_str
+
+    return strout
 
 
 def do_lpo_calc(end_of_accumulation_time0, begin_time, dataset, lpo_options,
