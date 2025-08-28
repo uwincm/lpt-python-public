@@ -104,6 +104,10 @@ def feature_spread_2d(array_2d0, npoints, spread_value=None):
         npx = 1*npoints
         npy = 1*npoints
 
+    # Make sure the spread radius is an integer. Round UP.
+    npx = int(np.ceil(npx))
+    npy = int(np.ceil(npy))
+
     # Pad with zeros to avoid index errors.
     array_2d = np.pad(array_2d, pad_width=((npy, npy), (npx, npx)),
                         mode='constant', constant_values=0)
