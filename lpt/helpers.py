@@ -462,7 +462,7 @@ def do_lpo_calc(end_of_accumulation_time0, begin_time, dataset, lpo_options,
                 img_dir1 = (output['img_dir'] + '/' + dataset['label']
                     + '/' + filter_str(lpo_options['filter_stdev'])
                     + '_' + str(int(lpo_options['accumulation_hours'])) + 'h'
-                    + '/thresh' + str(int(lpo_options['thresh']))
+                    + '/thresh' + thresh_str(lpo_options['thresh'])
                     + '/objects/'
                     + end_of_accumulation_time0.strftime(
                         output['sub_directory_format'])
