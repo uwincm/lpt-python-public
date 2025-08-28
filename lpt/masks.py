@@ -618,7 +618,7 @@ def get_lpo_grid_points(lp_object_id, mask_times, lp_objects_dir, lp_objects_fn_
     nnnn = int(str(int(lp_object_id))[-4:])
 
     dt_this0 = lpt.helpers.get_objid_datetime(lp_object_id)
-    dt_this = cftime.datetime(dt_this0.year,dt_this0.month,dt_this0.day,dt_this0.hour) #,calendar=mask_times[0].calendar)
+    dt_this = cftime.datetime(dt_this0.year,dt_this0.month,dt_this0.day,dt_this0.hour,calendar=mask_times[0].calendar)
     dt_idx = [tt for tt in range(len(mask_times)) if dt_this == mask_times[tt]][0]
 
     fn = (lp_objects_dir + '/' + dt_this.strftime(lp_objects_fn_format))
