@@ -230,15 +230,38 @@ def calc_grid_cell_area(lon, lat, verbose=False):
 
 
 def filter_str(stdev):
-    if type(stdev) == int:
-        strout = 'g' + str(int(stdev))
-    elif type(stdev) == list:
-        strout = 'g' + str(int(stdev[0])) + 'x' + str(int(stdev[1]))
+
+    if type(stdev) == list:
+        if isinstance(stdev[0], (int, np.integer)) or np.isclose(stdev[0] % 1, 0, atol=0.01):
+            filter_stdev_str0 = str(int(round(stdev[0])))
+        else:
+            filter_stdev_str0 = f"{stdev[0]:.2f}"
+
+        if isinstance(stdev[1], (int, np.integer)) or np.isclose(stdev[1] % 1, 0, atol=0.01):
+            filter_stdev_str1 = str(int(round(stdev[1])))
+        else:
+            filter_stdev_str1 = f"{stdev[1]:.2f}"
+
+        strout = 'g' + filter_stdev_str0 + 'x' + filter_stdev_str1
+
     else:
-        print('Warning: Wrong data type!')
-        strout = None
+        if isinstance(stdev, (int, np.integer)) or np.isclose(stdev % 1, 0, atol=0.01):
+            filter_stdev_str = str(int(round(stdev)))
+        else:
+            filter_stdev_str = f"{stdev:.2f}"
+        strout = 'g' + filter_stdev_str
+
     return strout
 
+
+def thresh_str(thresh):
+
+    if isinstance(thresh, (int, np.integer)) or np.isclose(thresh % 1, 0, atol=0.01):
+        strout = str(int(round(thresh)))
+    else:
+        strout = f"{thresh:.2f}"
+
+    return strout
 
 
 def do_lpo_calc(end_of_accumulation_time0, begin_time, dataset, lpo_options,
@@ -259,7 +282,7 @@ def do_lpo_calc(end_of_accumulation_time0, begin_time, dataset, lpo_options,
         output['data_dir'] + '/' + dataset['label']
         + '/' + filter_str(lpo_options['filter_stdev'])
         + '_' + str(int(lpo_options['accumulation_hours'])) + 'h'
-        + '/thresh' + str(int(lpo_options['thresh']))
+        + '/thresh' + thresh_str(lpo_options['thresh'])
         + '/objects/' + end_of_accumulation_time0.strftime(
                             output['sub_directory_format'])
     )

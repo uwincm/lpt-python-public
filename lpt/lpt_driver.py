@@ -15,16 +15,6 @@ from multiprocessing import Pool
 ## These functions are used by lpt_generic_netcdf_data_driver.py
 ################################################################################
 
-def filter_str(stdev):
-    if type(stdev) == int:
-        strout = 'g' + str(int(stdev))
-    elif type(stdev) == list:
-        strout = 'g' + str(int(stdev[0])) + 'x' + str(int(stdev[1]))
-    else:
-        print('Warning: Wrong data type!')
-        strout = None
-    return strout
-
 
 def lpt_driver(dataset,plotting,output,lpo_options,lpt_options
                 ,merge_split_options,mjo_id_options,argv):
@@ -57,9 +47,9 @@ def lpt_driver(dataset,plotting,output,lpo_options,lpt_options
 
         ## In case LPO wasn't calculated, make sure the relevant stuff is defined.
         objects_dir = (output['data_dir'] + '/' + dataset['label']
-                        + '/' + filter_str(lpo_options['filter_stdev'])
+                        + '/' + lpt.helpers.filter_str(lpo_options['filter_stdev'])
                         + '_' + str(int(lpo_options['accumulation_hours'])) + 'h'
-                        + '/thresh' + str(int(lpo_options['thresh']))
+                        + '/thresh' + lpt.helpers.thresh_str(lpo_options['thresh'])
                         + '/objects/')
 
         lpt.masks.calc_lpo_mask(begin_time, end_time, dataset['data_time_interval']
@@ -88,13 +78,13 @@ def lpt_driver(dataset,plotting,output,lpo_options,lpt_options
     """
     options = lpt_options
     options['objdir'] = (output['data_dir'] + '/' + dataset['label']
-                    + '/' + filter_str(lpo_options['filter_stdev'])
+                    + '/' + lpt.helpers.filter_str(lpo_options['filter_stdev'])
                     + '_' + str(int(lpo_options['accumulation_hours'])) + 'h'
-                    + '/thresh' + str(int(lpo_options['thresh'])) + '/objects')
+                    + '/thresh' + lpt.helpers.thresh_str(lpo_options['thresh']) + '/objects')
     options['outdir'] = (output['data_dir'] + '/' + dataset['label']
-                    + '/' + filter_str(lpo_options['filter_stdev'])
+                    + '/' + lpt.helpers.filter_str(lpo_options['filter_stdev'])
                     + '_' + str(int(lpo_options['accumulation_hours'])) + 'h'
-                    + '/thresh' + str(int(lpo_options['thresh'])) + '/systems')
+                    + '/thresh' + lpt.helpers.thresh_str(lpo_options['thresh']) + '/systems')
     options['calendar'] = dataset['calendar']
     options['data_time_interval'] = dataset['data_time_interval']
 
@@ -271,9 +261,9 @@ def lpt_driver(dataset,plotting,output,lpo_options,lpt_options
 
             img_dir2 = (
                 output['img_dir'] + '/' + dataset['label']
-                + '/' + filter_str(lpo_options['filter_stdev'])
+                + '/' + lpt.helpers.filter_str(lpo_options['filter_stdev'])
                 + '_' + str(int(lpo_options['accumulation_hours'])) + 'h'
-                + '/thresh' + str(int(lpo_options['thresh'])) + '/systems'
+                + '/thresh' + lpt.helpers.thresh_str(lpo_options['thresh']) + '/systems'
             )
 
             os.makedirs(img_dir2, exist_ok = True)
@@ -297,9 +287,9 @@ def lpt_driver(dataset,plotting,output,lpo_options,lpt_options
 
         ## In case LPO wasn't calculated, make sure the relevant stuff is defined.
         objects_dir = (output['data_dir'] + '/' + dataset['label']
-                        + '/' + filter_str(lpo_options['filter_stdev'])
+                        + '/' + lpt.helpers.filter_str(lpo_options['filter_stdev'])
                         + '_' + str(int(lpo_options['accumulation_hours'])) + 'h'
-                        + '/thresh' + str(int(lpo_options['thresh']))
+                        + '/thresh' + lpt.helpers.thresh_str(lpo_options['thresh'])
                         + '/objects/')
 
         lpt.mjo_id.do_mjo_id(begin_time, end_time, dataset['data_time_interval']
@@ -315,9 +305,9 @@ def lpt_driver(dataset,plotting,output,lpo_options,lpt_options
 
         ## In case LPO wasn't calculated, make sure the relevant stuff is defined.
         objects_dir = (output['data_dir'] + '/' + dataset['label']
-                        + '/' + filter_str(lpo_options['filter_stdev'])
+                        + '/' + lpt.helpers.filter_str(lpo_options['filter_stdev'])
                         + '_' + str(int(lpo_options['accumulation_hours'])) + 'h'
-                        + '/thresh' + str(int(lpo_options['thresh']))
+                        + '/thresh' + lpt.helpers.thresh_str(lpo_options['thresh'])
                         + '/objects/')
 
         lpt.masks.calc_individual_lpt_masks(begin_time, end_time, dataset['data_time_interval']
@@ -353,9 +343,9 @@ def lpt_driver(dataset,plotting,output,lpo_options,lpt_options
 
         ## In case LPO wasn't calculated, make sure the relevant stuff is defined.
         objects_dir = (output['data_dir'] + '/' + dataset['label']
-                        + '/' + filter_str(lpo_options['filter_stdev'])
+                        + '/' + lpt.helpers.filter_str(lpo_options['filter_stdev'])
                         + '_' + str(int(lpo_options['accumulation_hours'])) + 'h'
-                        + '/thresh' + str(int(lpo_options['thresh']))
+                        + '/thresh' + lpt.helpers.thresh_str(lpo_options['thresh'])
                         + '/objects/')
 
         lpt.masks.calc_individual_lpt_group_masks(begin_time, end_time, dataset['data_time_interval']
@@ -392,9 +382,9 @@ def lpt_driver(dataset,plotting,output,lpo_options,lpt_options
 
         ## In case LPO wasn't calculated, make sure the relevant stuff is defined.
         objects_dir = (output['data_dir'] + '/' + dataset['label']
-                        + '/' + filter_str(lpo_options['filter_stdev'])
+                        + '/' + lpt.helpers.filter_str(lpo_options['filter_stdev'])
                         + '_' + str(int(lpo_options['accumulation_hours'])) + 'h'
-                        + '/thresh' + str(int(lpo_options['thresh']))
+                        + '/thresh' + lpt.helpers.thresh_str(lpo_options['thresh'])
                         + '/objects/')
 
         lpt.masks.calc_composite_lpt_mask(begin_time, end_time, dataset['data_time_interval']
@@ -427,9 +417,9 @@ def lpt_driver(dataset,plotting,output,lpo_options,lpt_options
 
         ## In case LPO wasn't calculated, make sure the relevant stuff is defined.
         objects_dir = (output['data_dir'] + '/' + dataset['label']
-                        + '/' + filter_str(lpo_options['filter_stdev'])
+                        + '/' + lpt.helpers.filter_str(lpo_options['filter_stdev'])
                         + '_' + str(int(lpo_options['accumulation_hours'])) + 'h'
-                        + '/thresh' + str(int(lpo_options['thresh']))
+                        + '/thresh' + lpt.helpers.thresh_str(lpo_options['thresh'])
                         + '/objects/')
 
         lpt.masks.calc_composite_lpt_mask(begin_time, end_time, dataset['data_time_interval']
@@ -462,9 +452,9 @@ def lpt_driver(dataset,plotting,output,lpo_options,lpt_options
 
         ## In case LPO wasn't calculated, make sure the relevant stuff is defined.
         objects_dir = (output['data_dir'] + '/' + dataset['label']
-                        + '/' + filter_str(lpo_options['filter_stdev'])
+                        + '/' + lpt.helpers.filter_str(lpo_options['filter_stdev'])
                         + '_' + str(int(lpo_options['accumulation_hours'])) + 'h'
-                        + '/thresh' + str(int(lpo_options['thresh']))
+                        + '/thresh' + lpt.helpers.thresh_str(lpo_options['thresh'])
                         + '/objects/')
 
         lpt.masks.calc_composite_lpt_mask(begin_time, end_time, dataset['data_time_interval']
