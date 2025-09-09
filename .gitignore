@@ -1,0 +1,13 @@
+# Ignore everything
+*
+
+# Except these directories
+!lpt/
+!MASTER_RUN/
+!realtime/
+
+# And except these files
+!.gitignore
+!README.md
+!LICENSE
+!environment.yml
