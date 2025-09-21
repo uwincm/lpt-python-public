@@ -49,7 +49,7 @@ def readdata(datetime_to_read, dataset_options_dict, verbose=None):
                 , dataset_options_dict['latitude_variable_name']
                 , dataset_options_dict['field_variable_name'])
 
-        DATA = read_generic_netcdf_at_datetime(datetime_to_read
+        DATA = read_generic_netcdf_at_datetime(datetime_to_read=None
                 , variable_names = variable_names
                 , data_dir = dataset_options_dict['raw_data_parent_dir']
                 , fmt = dataset_options_dict['file_name_format']
@@ -145,14 +145,18 @@ def read_generic_netcdf(fn, variable_names=('lon','lat','rain'),
     with xr.open_dataset(fn) as DS:
 
         if area is not None:
-            DS = DS.sel(lon=slice(area[0], area[1]), lat=slice(area[2], area[3]))
+            # Some datasets have latitude going from north to south.
+            if DS[variable_names[1]][0] > DS[variable_names[1]][-1]:
+                DS = DS.sel({variable_names[0]: slice(area[0], area[1]), variable_names[1]: slice(area[3], area[2])})
+            else:
+                DS = DS.sel({variable_names[0]: slice(area[0], area[1]), variable_names[1]: slice(area[2], area[3])})
         DATA['lon'] = DS[variable_names[0]].values
         DATA['lat'] = DS[variable_names[1]].values
         if len(DATA['lon']) == 0 or len(DATA['lat']) == 0:
             raise ValueError(f"ERROR! No data found. Check that your area selection {area} is correct. Check lon range.")
         ## If no time variable, just retrieve the 2-D data as it is.
-        if not dt_to_use is None: #'time' in list(DS.variables):
-            DATA['data'] = DS.sel({variable_names[2]:str(dt_to_use)},method='nearest')[variable_names[3]].values
+        if not dt_to_use is None:
+            DATA['data'] = DS.sel({variable_names[2]: str(dt_to_use)})[variable_names[3]].values
         else:
             DATA['data'] = DS[variable_names[2]].values
 
