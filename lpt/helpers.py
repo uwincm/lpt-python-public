@@ -396,12 +396,18 @@ def do_lpo_calc(end_of_accumulation_time0, begin_time, dataset, lpo_options,
             ## Filter the data
             if lpo_options['filter_stdev'] > 0:
                 if lpo_options['periodic_longitude']:
-                    data_running_pad = np.pad(DATA_RUNNING, ((0,0),(lpo_options['filter_stdev'],lpo_options['filter_stdev'])), mode='wrap')
+                    pad_width = int(np.ceil(lpo_options['filter_stdev']))
+                    data_running_pad = np.pad(
+                        DATA_RUNNING,
+                        ((0,0),(pad_width, pad_width)),
+                        mode='wrap'
+                    )
                     data_filtered_pad = scipy.ndimage.gaussian_filter(
                         data_running_pad, lpo_options['filter_stdev'],
                         order=0, output=None, mode='reflect', cval=0.0,
-                        truncate=lpo_options['filter_n_stdev_width'])
-                    DATA_FILTERED = data_filtered_pad[:,lpo_options['filter_stdev']:-lpo_options['filter_stdev']]
+                        truncate=lpo_options['filter_n_stdev_width']
+                    )
+                    DATA_FILTERED = data_filtered_pad[:,pad_width:-pad_width]
                 else:
                     DATA_FILTERED = scipy.ndimage.gaussian_filter(
                         DATA_RUNNING, lpo_options['filter_stdev'],
