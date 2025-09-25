@@ -255,6 +255,7 @@ lpt_options['individual_masks_begin_lptid'] = 0           # LPT ID to start with
 lpt_options['individual_masks_end_lptid'] = 9999          # LPT ID to end with
 lpt_options['individual_masks_mjo_only'] = False          # If True, then only do MJO LPTs only.
 lpt_options['mask_include_rain_rates'] = True             # Whether to include masked rain rates in mask output files.
+# NOTE: Volrain is only written to LPT systems file when lpt_options['do_lpt_individual_masks'] = True
 lpt_options['mask_calc_volrain'] = True                   # Whether to calculate a volumetric rain and include with mask files.
 lpt_options['mask_detailed_output'] = False               # Whether to output separate masks with filter and/or accumulation.
 lpt_options['mask_calc_with_filter_radius'] = True        # Whether to calculate the mask with filter variables. (Takes much longer to run)
@@ -269,3 +270,4 @@ Call the driver function.
 """
 
 lpt_driver(dataset,plotting,output,lpo_options,lpt_options, merge_split_options, mjo_id_options, sys.argv)
+
