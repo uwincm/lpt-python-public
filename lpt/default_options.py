@@ -108,6 +108,7 @@ lpt_options['do_lpt_composite_mask'] = False              # Whether to generate 
 lpt_options['do_mjo_lpt_composite_mask'] = False          # Whether to generate mask file for all MJO LPT systems combined.
 lpt_options['do_non_mjo_lpt_composite_mask'] = False      # Whether to generate mask file for all non MJO LPT systems combined.
 lpt_options['mask_include_rain_rates'] = True             # Whether to include masked rain rates in mask output files.
+# NOTE: Volrain is only written to LPT systems file when lpt_options['do_lpt_individual_masks'] = True
 lpt_options['mask_calc_volrain'] = True                   # Whether to calculate a volumetric rain and include with mask files.
 lpt_options['mask_detailed_output'] = False               # Whether to output separate masks with filter and/or accumulation.
 lpt_options['mask_calc_with_filter_radius'] = True        # Whether to calculate the mask with filter variables. (Ignored if mask_detailed_output is False).
@@ -142,3 +143,4 @@ mjo_id_options['max_abs_latitude'] = 15.0                            # in deg. l
 mjo_id_options['duration_to_avoid_being_conquered'] = 7.0*24.0  # In hours.
 mjo_id_options['lon_prop_to_avoid_being_conquered'] = 20.0      # In degrees longitude
 mjo_id_options['backtrack_allowance'] = 5.0                     # In degrees longitude
+
