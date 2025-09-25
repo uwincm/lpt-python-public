@@ -18,7 +18,7 @@ dataset['time_variable_name'] = 'time'
 dataset['field_variable_name'] = 'rain'
 dataset['field_is_accumulated'] = False
 dataset['field_units'] = 'mm h-1'
-dataset['area'] = [0, 360, -50, 50]   # Geographical area of data to use.
+dataset['area'] = None   # Geographical area of data to use.
 """
 Set calendar below. Use a valid cftime calendar.
 Valid calendars are currently:
