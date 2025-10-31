@@ -89,13 +89,15 @@ Main settings for lpt
 ## Plot settings.
 plotting['do_plotting'] = False               # True or False -- Should I make plots?
 plotting['plot_area'] = [0, 360, -50, 50]     # Plotting area for LPO maps. (Does NOT affect tracking)
-plotting['time_lon_range'] = [40, 200]        # Longitude Range for time-longitude plots. (Does NOT affect tracking)
+plotting['map_crs_name'] = 'PlateCarree'         # Name of Cartopy map projection
+plotting['map_crs_central_longitude'] = 180.0    # Central longitude for map projection.
 plotting['map_vmin'] = 1.0                    # Minimum value for color scale for LPO maps.
 plotting['map_vmax'] = 50.0                   # Maximum value for color scale for LPO maps.
 plotting['map_cmap_base'] = 'jet'              # Base colormap for LPO maps
 plotting['map_cmap_factor'] = 1.5              # Normalization factor. <1.0 makes colors darker, >1.0 makes colors lighter.
 plotting['map_cmap_under_color'] = 'white'    # Color for values under vmin. (If None, use default colormap behavior)
 plotting['map_cmap_over_color'] = None         # Color for values over vmax. (If None, use default colormap behavior)
+plotting['time_lon_range'] = [40, 200]        # Longitude Range for time-longitude plots. (Does NOT affect tracking)
 
 ## High level output directories. Images and data will go in here.
 output['img_dir'] = './images'

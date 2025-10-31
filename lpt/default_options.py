@@ -34,6 +34,8 @@ Main settings for lpt
 plotting = {}
 plotting['do_plotting'] = False               # True or False -- Should I make plots?
 plotting['plot_area'] = [0, 360, -50, 50]    # Plotting area for LPO maps. (Does NOT affect tracking)
+plotting['map_crs_name'] = 'PlateCarree'         # Name of Cartopy map projection
+plotting['map_crs_central_longitude'] = 180.0    # Central longitude for map projection.
 plotting['map_vmin'] = 1.0                     # Minimum value for color scale for LPO maps.
 plotting['map_vmax'] = 50.0                    # Maximum value for color scale for LPO maps.
 plotting['map_cmap_base'] = 'jet'              # Base colormap for LPO maps

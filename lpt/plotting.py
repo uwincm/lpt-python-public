@@ -107,12 +107,19 @@ def get_projection(plot_area = [0,360,-60,60]):
     return proj
 
 
-def plot_map_background(plot_area=[0,360,-60,60], coast_color = 'k',
-                        borders_color='darkgrey', fontsize=10):
+def plot_map_background(plot_area=[0,360,-60,60], proj_name='PlateCarree',
+    central_longitude=0, coast_color = 'k',
+    borders_color='darkgrey', fontsize=10):
 
-    proj = get_projection(plot_area)
+    # proj = get_projection(plot_area)
+    if hasattr(ccrs, proj_name):
+        proj = getattr(ccrs, proj_name)(central_longitude=central_longitude)
+    else:
+        raise ValueError(f"Unknown Cartopy projection: plotting['map_crs_name'] = {proj_name}")
 
     # This is needed when I specify the area to plot.
+    # CRS for lon/lat input (extent coords). Keep as PlateCarree unless your
+    # extent is given in another CRS.
     proj0 = ccrs.PlateCarree(central_longitude=0)
 
     ax = plt.gcf().add_axes([0,0,0.9,1], projection=proj)
@@ -174,7 +181,11 @@ def plot_rain_map_with_filtered_contour(DATA_ACCUM, OBJ, plotting, lpo_options, 
     if plotting.get('map_cmap_over_color', None) is not None:
         cmap.set_over(color=plotting['map_cmap_over_color'])
 
-    map1 = plot_map_background(plot_area)
+    map1 = plot_map_background(
+        plot_area=plot_area,
+        proj_name=plotting.get('map_crs_name', 'PlateCarree'),
+        central_longitude=plotting.get('map_crs_central_longitude', 0)
+    )
     H1 = map1.pcolormesh(lon, lat, DATA_ACCUM, cmap=cmap, vmin=vmin, vmax=vmax,
                          transform=proj0)
 
