@@ -51,35 +51,41 @@ def rain_cmap_12():
     return cmap
 
 
-def cmap_map(function, cmap):
-    """ Applies function (which should operate on vectors of shape 3: [r, g, b]), on colormap cmap.
-    This routine will break any discontinuous points in a colormap.
+def adjust_cmap_brightness(cmap, factor):
     """
-    cdict = cmap._segmentdata
-    step_dict = {}
-    # Firt get the list of points where the segments start or end
-    for key in ('red', 'green', 'blue'):
-        step_dict[key] = list(map(lambda x: x[0], cdict[key]))
-    step_list = sum(step_dict.values(), [])
-    step_list = np.array(list(set(step_list)))
-    # Then compute the LUT, and apply the function to the LUT
-    reduced_cmap = lambda step : np.array(cmap(step)[0:3])
-    old_LUT = np.array(list(map(reduced_cmap, step_list)))
-    new_LUT = np.array(list(map(function, old_LUT)))
-    # Now try to make a minimal segment definition of the new LUT
-    cdict = {}
-    for i, key in enumerate(['red','green','blue']):
-        this_cdict = {}
-        for j, step in enumerate(step_list):
-            if step in step_dict[key]:
-                this_cdict[step] = new_LUT[j, i]
-            elif new_LUT[j,i] != old_LUT[j, i]:
-                this_cdict[step] = new_LUT[j, i]
-        colorvector = list(map(lambda x: x + (x[1], ), this_cdict.items()))
-        colorvector.sort()
-        cdict[key] = colorvector
+    Return a new colormap brightened (factor > 1) or darkened (0 < factor < 1).
+    factor == 1 returns an identical colormap. factor must be > 0.
+    """
+    if isinstance(cmap, str):
+        cmap = plt.get_cmap(cmap)
 
-    return colors.LinearSegmentedColormap('colormap',cdict,1024)
+    f = float(factor)
+    if f <= 0:
+        raise ValueError("factor must be > 0")
+
+    N = 256
+    xi = np.linspace(0.0, 1.0, N)
+    rgba = cmap(xi)
+    rgb = rgba[:, :3]
+
+    if f >= 1.0:
+        rgb_new = 1.0 - (1.0 - rgb) / f  # move toward white
+    else:
+        rgb_new = rgb * f  # move toward black
+
+    rgba[:, :3] = np.clip(rgb_new, 0.0, 1.0)
+
+    new_name = f"{getattr(cmap, 'name', 'cmap')}_bright_{f:.3g}"
+    new_cmap = ListedColormap(rgba, name=new_name)
+
+    if getattr(cmap, "_rgba_under", None) is not None:
+        new_cmap.set_under(cmap._rgba_under)
+    if getattr(cmap, "_rgba_over", None) is not None:
+        new_cmap.set_over(cmap._rgba_over)
+    if getattr(cmap, "_rgba_bad", None) is not None:
+        new_cmap.set_bad(cmap._rgba_bad)
+
+    return new_cmap
 
 
 def get_projection(plot_area = [0,360,-60,60]):
@@ -101,12 +107,19 @@ def get_projection(plot_area = [0,360,-60,60]):
     return proj
 
 
-def plot_map_background(plot_area=[0,360,-60,60], coast_color = 'k',
-                        borders_color='darkgrey', fontsize=10):
+def plot_map_background(plot_area=None, proj_name='PlateCarree',
+    central_longitude=0, coast_color = 'k',
+    borders_color='darkgrey', fontsize=10):
 
-    proj = get_projection(plot_area)
+    # proj = get_projection(plot_area)
+    if hasattr(ccrs, proj_name):
+        proj = getattr(ccrs, proj_name)(central_longitude=central_longitude)
+    else:
+        raise ValueError(f"Unknown Cartopy projection: plotting['map_crs_name'] = {proj_name}")
 
     # This is needed when I specify the area to plot.
+    # CRS for lon/lat input (extent coords). Keep as PlateCarree unless your
+    # extent is given in another CRS.
     proj0 = ccrs.PlateCarree(central_longitude=0)
 
     ax = plt.gcf().add_axes([0,0,0.9,1], projection=proj)
@@ -118,7 +131,8 @@ def plot_map_background(plot_area=[0,360,-60,60], coast_color = 'k',
     ax.coastlines(color=coast_color)
 
     # Limit plot extent
-    ax.set_extent(plot_area, crs = proj0)
+    if plot_area is not None:
+        ax.set_extent(plot_area, crs=proj0)
 
     # Draw parallels and meridians.
     gl = ax.gridlines(draw_labels=True, dms=False,
@@ -155,19 +169,24 @@ def plot_rain_map_with_filtered_contour(DATA_ACCUM, OBJ, plotting, lpo_options, 
     lon = OBJ['grid']['lon']
     lat = OBJ['grid']['lat']
 
-    if 'vmin' in plotting:
-        vmin = plotting['vmin']
-    else:
-        vmin = 1.0
+    vmin = plotting['map_vmin']
+    vmax = plotting['map_vmax']
 
-    if 'vmax' in plotting:
-        vmax = plotting['vmax']
-    else:
-        vmax = 50.0
-        
-    map1 = plot_map_background(plot_area)
-    cmap = cmap_map(lambda x: x/2 + 0.5, plt.cm.jet)
-    cmap.set_under(color='white')
+    # cmap = cmap_map(lambda x: x/2 + 0.5, plt.cm.jet)
+    cmap_factor = plotting.get('map_cmap_factor', 1.0)
+    base_cmap = plt.get_cmap(plotting['map_cmap_base'])
+    # cmap = cmap_map(lambda x: cmap_factor * x + cmap_factor, base_cmap)
+    cmap = adjust_cmap_brightness(base_cmap, cmap_factor)
+    if plotting.get('map_cmap_under_color', None) is not None:
+        cmap.set_under(color=plotting['map_cmap_under_color'])
+    if plotting.get('map_cmap_over_color', None) is not None:
+        cmap.set_over(color=plotting['map_cmap_over_color'])
+
+    map1 = plot_map_background(
+        plot_area=plot_area,
+        proj_name=plotting.get('map_crs_name', 'PlateCarree'),
+        central_longitude=plotting.get('map_crs_central_longitude', 0)
+    )
     H1 = map1.pcolormesh(lon, lat, DATA_ACCUM, cmap=cmap, vmin=vmin, vmax=vmax,
                          transform=proj0)
 
