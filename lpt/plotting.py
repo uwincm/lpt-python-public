@@ -107,7 +107,7 @@ def get_projection(plot_area = [0,360,-60,60]):
     return proj
 
 
-def plot_map_background(plot_area=[0,360,-60,60], proj_name='PlateCarree',
+def plot_map_background(plot_area=None, proj_name='PlateCarree',
     central_longitude=0, coast_color = 'k',
     borders_color='darkgrey', fontsize=10):
 
@@ -131,7 +131,8 @@ def plot_map_background(plot_area=[0,360,-60,60], proj_name='PlateCarree',
     ax.coastlines(color=coast_color)
 
     # Limit plot extent
-    ax.set_extent(plot_area, crs = proj0)
+    if plot_area is not None:
+        ax.set_extent(plot_area, crs=proj0)
 
     # Draw parallels and meridians.
     gl = ax.gridlines(draw_labels=True, dms=False,
