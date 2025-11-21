@@ -22,7 +22,8 @@ To add a new data set, do the following:
 
 ################################################################################
 
-def readdata(datetime_to_read, dataset_options_dict, verbose=None):
+def readdata(datetime_to_read, dataset_options_dict, 
+    max_time_difference_hours = 0, verbose=None):
     """
     Main data read function. Get data at datetime datetime_to_read.
     Based on the oprions in dataset_options_dict, it will look in the data directory
@@ -68,6 +69,7 @@ def readdata(datetime_to_read, dataset_options_dict, verbose=None):
                 , data_dir = dataset_options_dict['raw_data_parent_dir']
                 , fmt = dataset_options_dict['file_name_format']
                 , area = dataset_options_dict['area']
+                , max_time_difference_hours = max_time_difference_hours
                 , verbose = verbose_actual)
 
     elif dataset_options_dict['raw_data_format'] == 'tmpa':
@@ -126,7 +128,7 @@ def readdata(datetime_to_read, dataset_options_dict, verbose=None):
 ################################################################################
 
 def read_generic_netcdf(fn, variable_names=('lon','lat','rain'), 
-    area=None, dt_to_use=None):
+    area=None, dt_to_use=None, max_time_difference_hours=0):
     """
     DATA = read_generic_netcdf(fn)
 
@@ -156,7 +158,10 @@ def read_generic_netcdf(fn, variable_names=('lon','lat','rain'),
             raise ValueError(f"ERROR! No data found. Check that your area selection {area} is correct. Check lon range.")
         ## If no time variable, just retrieve the 2-D data as it is.
         if not dt_to_use is None:
-            DATA['data'] = DS.sel({variable_names[2]: str(dt_to_use)})[variable_names[3]].values
+            if max_time_difference_hours > 0:
+                DATA['data'] = DS.sel({variable_names[2]: str(dt_to_use)}, method='nearest', tolerance=np.timedelta64(int(max_time_difference_hours*3600), 's'))[variable_names[3]].values
+            else:
+                DATA['data'] = DS.sel({variable_names[2]: str(dt_to_use)})[variable_names[2]].values
         else:
             DATA['data'] = DS[variable_names[2]].values
 
@@ -180,7 +185,7 @@ def read_generic_netcdf(fn, variable_names=('lon','lat','rain'),
 
 def read_generic_netcdf_at_datetime(dt, data_dir='.'
         , variable_names=('lon','lat','rain'), dt_to_use=None, fmt='gridded_rain_rates_%Y%m%d%H.nc'
-        , area=[0,360,-90,90], verbose=False):
+        , area=[0,360,-90,90], max_time_difference_hours=0, verbose=False):
 
     fn = (data_dir + '/' + dt.strftime(fmt))
     DATA=None
@@ -190,10 +195,13 @@ def read_generic_netcdf_at_datetime(dt, data_dir='.'
     else:
         if verbose:
             print(fn)
-        DATA=read_generic_netcdf(fn,
+        DATA=read_generic_netcdf(
+            fn,
             variable_names = variable_names,
             dt_to_use = dt_to_use,
-            area = area)
+            area = area,
+            max_time_difference_hours = max_time_difference_hours
+        )
 
     return DATA
 

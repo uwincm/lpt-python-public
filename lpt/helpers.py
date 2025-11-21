@@ -361,9 +361,28 @@ def do_lpo_calc(end_of_accumulation_time0, begin_time, dataset, lpo_options,
             ## Get accumulated rain.
             data_collect = []
             count = 0
-
+            print(dt_list)
             for this_dt in reversed(dt_list):
-                DATA_RAW = lpt.readdata.readdata(this_dt, dataset)
+                # Try exact time. If that fails,
+                # Then try nearest time within tolerance
+                # and give a warning.
+                try:
+                    DATA_RAW = lpt.readdata.readdata(
+                        this_dt, dataset,
+                        max_time_difference_hours=0
+                    )
+                except Exception as e:
+                    print(f"Exception encountered: {e}", flush=True)
+                    print(
+                        ('WARNING: Using nearest time for '
+                        + this_dt.strftime('%Y-%m-%d %H:00 UTC')
+                        + ' in LPO calculation, tolerance 24 hours.'
+                        ), flush=True
+                    )
+                    DATA_RAW = lpt.readdata.readdata(
+                        this_dt, dataset,
+                        max_time_difference_hours=24
+                    )
                 DATA_RAW['data'] = np.array(DATA_RAW['data'].filled(
                     fill_value=0.0))
                 DATA_RAW['data'][~np.isfinite(DATA_RAW['data'])] = 0.0
@@ -391,7 +410,7 @@ def do_lpo_calc(end_of_accumulation_time0, begin_time, dataset, lpo_options,
                     * lpo_options['multiply_factor']) 
 
             if dataset['verbose']:
-                print('Running mean done.',flush=True)
+                print('Running mean done. Mean = ', np.mean(DATA_RUNNING), flush=True)
 
             ## Filter the data
             if lpo_options['filter_stdev'] > 0:
@@ -481,7 +500,7 @@ def do_lpo_calc(end_of_accumulation_time0, begin_time, dataset, lpo_options,
                 plt.close(fig1)
 
         except FileNotFoundError:
-            print('Data not yet available up to this point. Skipping.')
+            print('Data not yet available for this time: ' + str(datetime_to_read) + '. Skipping.')
 
 
 def calculate_centroid_and_bounds_wrap_x(label_im, nb_labels, x, y, area):
