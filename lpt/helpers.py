@@ -361,7 +361,6 @@ def do_lpo_calc(end_of_accumulation_time0, begin_time, dataset, lpo_options,
             ## Get accumulated rain.
             data_collect = []
             count = 0
-            print(dt_list)
             for this_dt in reversed(dt_list):
                 # Try exact time. If that fails,
                 # Then try nearest time within tolerance
