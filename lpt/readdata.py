@@ -58,6 +58,8 @@ def readdata(datetime_to_read, dataset_options_dict,
                 , verbose = verbose_actual)
 
     elif dataset_options_dict['raw_data_format'] == 'generic_netcdf_with_multiple_times':
+        # NOTE: When using generic_netcdf_with_multiple_times
+        # Time variable is added to the list of variables !!!
         variable_names = (dataset_options_dict['longitude_variable_name']
                 , dataset_options_dict['latitude_variable_name']
                 , dataset_options_dict['time_variable_name']
@@ -144,8 +146,7 @@ def read_generic_netcdf(fn, variable_names=('lon','lat','rain'),
     """
 
     DATA = {}
-    with xr.open_dataset(fn) as DS:
-
+    with xr.open_dataset(fn, use_cftime=True) as DS:
         if area is not None:
             # Some datasets have latitude going from north to south.
             if DS[variable_names[1]][0] > DS[variable_names[1]][-1]:
@@ -158,11 +159,23 @@ def read_generic_netcdf(fn, variable_names=('lon','lat','rain'),
             raise ValueError(f"ERROR! No data found. Check that your area selection {area} is correct. Check lon range.")
         ## If no time variable, just retrieve the 2-D data as it is.
         if not dt_to_use is None:
+            # If time variable is used, then the variable_names has 4 entries.
+            # The entries are: lon, lat, time, data_variable
+            # Therefore, I need to get the data using variable_names[3].
             if max_time_difference_hours > 0:
-                DATA['data'] = DS.sel({variable_names[2]: str(dt_to_use)}, method='nearest', tolerance=np.timedelta64(int(max_time_difference_hours*3600), 's'))[variable_names[3]].values
+                DATA['data'] = DS.sel(
+                    {variable_names[2]: dt_to_use},
+                    method='nearest',
+                    tolerance=dt.timedelta(hours=max_time_difference_hours)
+                )[variable_names[3]].values
             else:
-                DATA['data'] = DS.sel({variable_names[2]: str(dt_to_use)})[variable_names[2]].values
+                DATA['data'] = DS.sel(
+                    {variable_names[2]: dt_to_use}
+                )[variable_names[3]].values
         else:
+            # If no time variable, just retrieve the 2-D data as it is.
+            # There are three variable names: lon, lat, data_variable
+            # Therefore, I need to get the data using variable_names[2].
             DATA['data'] = DS[variable_names[2]].values
 
     DATA['data'] = np.ma.masked_array(DATA['data'], mask=np.isnan(DATA['data']))
