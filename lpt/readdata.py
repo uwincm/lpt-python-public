@@ -67,13 +67,14 @@ def readdata(datetime_to_read, dataset_options_dict,
 
         DATA = read_generic_netcdf_at_datetime(datetime_to_read
                 , variable_names = variable_names
-                , dt_to_use = datetime_to_read
+                , dt_to_use = datetime_to_read + dt.timedelta(minutes=dataset_options_dict['time_variable_offset_minutes'])
                 , data_dir = dataset_options_dict['raw_data_parent_dir']
                 , fmt = dataset_options_dict['file_name_format']
                 , area = dataset_options_dict['area']
                 , max_time_difference_hours = max_time_difference_hours
                 , verbose = verbose_actual)
-
+        if verbose_actual and dataset_options_dict['time_variable_offset_minutes'] != 0:
+            print(datetime_to_read, ' actually reading -->', datetime_to_read + dt.timedelta(minutes=dataset_options_dict['time_variable_offset_minutes']), flush=True)
     elif dataset_options_dict['raw_data_format'] == 'tmpa':
         DATA = read_tmpa_hdf_at_datetime(datetime_to_read
                 , area = dataset_options_dict['area']

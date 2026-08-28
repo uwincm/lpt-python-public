@@ -15,6 +15,7 @@ dataset['verbose'] = True
 dataset['longitude_variable_name'] = 'lon'
 dataset['latitude_variable_name'] = 'lat'
 dataset['time_variable_name'] = 'time'
+dataset['time_variable_offset_minutes'] = 0
 dataset['field_variable_name'] = 'rain'
 dataset['field_is_accumulated'] = False
 dataset['field_units'] = 'mm h-1'
