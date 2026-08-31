@@ -133,8 +133,11 @@ def readdata(datetime_to_read, dataset_options_dict,
 def read_generic_netcdf(fn, variable_names=('lon','lat','rain'), 
     area=None, dt_to_use=None, max_time_difference_hours=0):
     """
+    Read generic NetCDF data.
     DATA = read_generic_netcdf(fn)
-
+    fn is a single file or a list of files or a glob pattern for multiple files.
+    Basically, anything that can be opened using xarray.open_mfdataset.
+    
     output is like this:
     list(DATA)
     Out[12]: ['lon', 'lat', 'precip']
@@ -147,7 +150,7 @@ def read_generic_netcdf(fn, variable_names=('lon','lat','rain'),
     """
 
     DATA = {}
-    with xr.open_dataset(fn, use_cftime=True) as DS:
+    with xr.open_mfdataset(fn, use_cftime=True) as DS:
         if area is not None:
             # Some datasets have latitude going from north to south.
             if DS[variable_names[1]][0] > DS[variable_names[1]][-1]:
@@ -200,12 +203,36 @@ def read_generic_netcdf(fn, variable_names=('lon','lat','rain'),
 def read_generic_netcdf_at_datetime(dt, data_dir='.'
         , variable_names=('lon','lat','rain'), dt_to_use=None, fmt='gridded_rain_rates_%Y%m%d%H.nc'
         , area=[0,360,-90,90], max_time_difference_hours=0, verbose=False):
+    """
+    Read generic NetCDF data at a specific datetime.
 
-    fn = (data_dir + '/' + dt.strftime(fmt))
+    Parameters:
+    dt (datetime): The datetime to read data for.
+    data_dir (str): The directory containing the data files.
+    variable_names (tuple): The names of the longitude, latitude, and data variables.
+    dt_to_use (datetime): The datetime to use for the data. If None, use dt.
+    fmt (str or list): The format string(s) for the data file names.
+    area (list): The geographical area to include in the output.
+    max_time_difference_hours (int): The maximum time difference in hours to consider a file valid.
+    verbose (bool): Whether to print verbose output.
+
+    Returns:
+    dict: A dictionary containing the longitude, latitude, and data arrays.
+    """
+    # Check if fmt is a string or a list of strings. If it's a string, use it directly. If it's a list, loop through the list and read each file.
+    if isinstance(fmt, str):
+        fn = sorted(glob.glob(data_dir + '/' + dt.strftime(fmt)))
+    # Check if fmt is a list of strings (for multiple files)
+    elif isinstance(fmt, list):
+        fn = []
+        for fmt_i in fmt:
+            fn_i = (data_dir + '/' + dt.strftime(fmt_i))
+            fn.append(fn_i)
+
     DATA=None
 
-    if not os.path.exists(fn):
-        print('File not found: ', fn)
+    if len(fn) == 0:
+        print('File(s) not found: ', fn)
     else:
         if verbose:
             print(fn)
