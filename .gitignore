@@ -11,3 +11,6 @@
 !README.md
 !LICENSE
 !environment.yml
+# pixi environments
+.pixi/*
+!.pixi/config.toml
