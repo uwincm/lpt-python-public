@@ -31,6 +31,7 @@ Then, to activate the environment:
 - The main Python functions directory is **lpt/**.
   * Functions for reading data are in **lpt/readdata.py**. (See the options for the **dataset** dictionary below.) Currently there are functions for:
     + Generic NetCDF data like (lat, lon, precip) or (time, lat, lon, precip). The variable names can be customized.
+      - It is now possible to specify a glob pattern for files, or a list of files, in `dataset['file_name_format']`. Whatever you specify must be able to be opened using xarray open_mfdataset().
     + CMORPH
     + IMERG Version 6 (HDF5)
     + CFSR and CFS Forecast (Grib2)
