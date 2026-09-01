@@ -691,7 +691,7 @@ def read_lp_object_properties(objid, objdir, var_list, verbose=False, fmt="/%Y/%
             if 'grid_' in var:
                 out_dict[var] = ds1[var][:]
             else:
-                out_dict[var] = to1d(ds1[var][:][idx1])
+                out_dict[var] = to1d(ds1[var][:][idx1])[0]
 
     return out_dict
 
