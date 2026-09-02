@@ -224,7 +224,7 @@ def west_east_divide_and_conquer(datetime_list, lon, opts, do_plotting=False, pl
     else:
         keep_going = False ## Skip if it has no east or west prop portions in RAW data.
     niter = 0;
-    maxiter = 100;
+    maxiter = 1000;
     while keep_going:
 
         keep_going = False
@@ -338,7 +338,7 @@ def west_east_divide_and_conquer(datetime_list, lon, opts, do_plotting=False, pl
 ################################################################################
 ################################################################################
 
-def do_mjo_id(dt_begin, dt_end, interval_hours, opts, prod='trmm'
+def do_mjo_id(dt_begin, dt_end, interval_hours, averaging_time_hours, opts, prod='trmm'
     , lpt_systems_dir = '.', verbose=True):
 
     do_plotting = opts['do_plotting']
@@ -414,7 +414,8 @@ def do_mjo_id(dt_begin, dt_end, interval_hours, opts, prod='trmm'
 
             print('LPT ID: ' + str(this_lptid))
             iii = np.where(f['lptid'] == this_lptid)[0][0]
-            i1 = f['i1'][iii]
+            # start with the first point AFTER the initial averaging/accumulation period.
+            i1 = f['i1'][iii] + averaging_time_hours // interval_hours 
             i2 = f['i2'][iii]
             this_lpt_time = ts[i1:i2+1]
             hours_since_beginning = [(x - this_lpt_time[0]).total_seconds()/3600.0 for x in this_lpt_time]
