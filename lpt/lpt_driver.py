@@ -292,9 +292,15 @@ def lpt_driver(dataset,plotting,output,lpo_options,lpt_options
                         + '/thresh' + lpt.helpers.thresh_str(lpo_options['thresh'])
                         + '/objects/')
 
-        lpt.mjo_id.do_mjo_id(begin_time, end_time, dataset['data_time_interval']
-            , mjo_id_options, prod = dataset['label']
-            , lpt_systems_dir=options['outdir'])
+        lpt.mjo_id.do_mjo_id(
+            begin_time,
+            end_time,
+            dataset['data_time_interval'],
+            lpo_options['accumulation_hours'],
+            mjo_id_options,
+            prod = dataset['label'],
+            lpt_systems_dir=options['outdir']
+        )
 
 
 
