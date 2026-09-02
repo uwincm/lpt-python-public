@@ -284,11 +284,18 @@ def west_east_divide_and_conquer(datetime_list, lon, opts, do_plotting=False, pl
                             ## Check for net westward progression
                             if (statsEW['min_lon'].values[ii+1] - statsEW['min_lon'].values[ii-1]) > opts['backtrack_allowance']:
                                 conquer = False
-                                print('Prevent conquer due to lon propagation.')
+                                print('Prevent conquer due to backtrack_allowance.')
                         else:
                             ## Check for net eastward progression
                             if (statsEW['max_lon'].values[ii+1] - statsEW['max_lon'].values[ii-1]) < -1*opts['backtrack_allowance']:
                                 conquer = False
+                                print('Prevent conquer due to backtrack_allowance.')
+
+                else:
+                    print('Prevent conquer due to lon_prop_to_avoid_being_conquered.')
+
+            else:
+                print('Prevent conquer due to duration_to_avoid_being_conquered.')
 
             if conquer:
                 ## If the condition is satisfied to conquer it, then
