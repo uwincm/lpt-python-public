@@ -691,7 +691,7 @@ def read_lp_object_properties(objid, objdir, var_list, verbose=False, fmt="/%Y/%
             if 'grid_' in var:
                 out_dict[var] = ds1[var][:]
             else:
-                out_dict[var] = to1d(ds1[var][:][idx1])[0]
+                out_dict[var] = to1d(ds1[var][:][idx1])
 
     return out_dict
 
@@ -1414,7 +1414,7 @@ def add_fields_to_a_TC(TC_this0, timestamp_all, options, fmt, tt):
         )
 
         TC_this['nobj'][tt] += 1
-        TC_this['area'][tt] += OBJ['area']
+        TC_this['area'][tt] += np.nansum(OBJ['area'])
 
         pixels_x_collect += OBJ['pixels_x'].flatten().tolist()
         pixels_y_collect += OBJ['pixels_y'].flatten().tolist()
