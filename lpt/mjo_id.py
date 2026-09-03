@@ -421,9 +421,11 @@ def do_mjo_id(dt_begin, dt_end, interval_hours, averaging_time_hours, opts, prod
 
             print('LPT ID: ' + str(this_lptid))
             iii = np.where(f['lptid'] == this_lptid)[0][0]
+            i1_00 = f['i1'][iii] # For backwards compatibility with 2025 IMERG and ERA5 data, include initial averaging/accumulation period in total LPT time period.
             # start with the first point AFTER the initial averaging/accumulation period.
             i1 = f['i1'][iii] + averaging_time_hours // interval_hours 
             i2 = f['i2'][iii]
+            this_lpt_time_00 = ts[i1_00:i2+1]
             this_lpt_time = ts[i1:i2+1]
             hours_since_beginning = [(x - this_lpt_time[0]).total_seconds()/3600.0 for x in this_lpt_time]
             this_duration = f['duration'][iii]
@@ -453,14 +455,14 @@ def do_mjo_id(dt_begin, dt_end, interval_hours, averaging_time_hours, opts, prod
                 east_prop_df['area_times_speed'] = np.nansum(this_lpt_area * spd_raw)
                 east_prop_df['lptid'] = this_lptid
                 east_prop_df['total_duration'] = this_duration
-                east_prop_df['year_begin'] = this_lpt_time[0].year
-                east_prop_df['month_begin'] = this_lpt_time[0].month
-                east_prop_df['day_begin'] = this_lpt_time[0].day
-                east_prop_df['hour_begin'] = this_lpt_time[0].hour
-                east_prop_df['year_end'] = this_lpt_time[-1].year
-                east_prop_df['month_end'] = this_lpt_time[-1].month
-                east_prop_df['day_end'] = this_lpt_time[-1].day
-                east_prop_df['hour_end'] = this_lpt_time[-1].hour
+                east_prop_df['year_begin'] = this_lpt_time_00[0].year
+                east_prop_df['month_begin'] = this_lpt_time_00[0].month
+                east_prop_df['day_begin'] = this_lpt_time_00[0].day
+                east_prop_df['hour_begin'] = this_lpt_time_00[0].hour
+                east_prop_df['year_end'] = this_lpt_time_00[-1].year
+                east_prop_df['month_end'] = this_lpt_time_00[-1].month
+                east_prop_df['day_end'] = this_lpt_time_00[-1].day
+                east_prop_df['hour_end'] = this_lpt_time_00[-1].hour
 
                 ## Fill in 'meets_mjo_criteria' field. Check each for MJO criteria.
                 east_prop_df['meets_mjo_criteria'] = False
@@ -551,16 +553,16 @@ def do_mjo_id(dt_begin, dt_end, interval_hours, averaging_time_hours, opts, prod
                     if jj > 0:
 
                         jjj = np.where(f['lptid'] == east_prop_group_df_sort['lptid'].values[jj])[0][0]
-                        i1 = f['i1'][jjj]+east_prop_group_df_sort['begin_indx'].values[jj]
-                        i2 = f['i1'][jjj]+east_prop_group_df_sort['end_indx'].values[jj]
+                        i1 = f['i1'][jjj] + averaging_time_hours // interval_hours + east_prop_group_df_sort['begin_indx'].values[jj]
+                        i2 = f['i1'][jjj] + averaging_time_hours // interval_hours + east_prop_group_df_sort['end_indx'].values[jj]
                         points1 =  pd.DataFrame.from_dict({'ts':ts[i1:i2+1]
                                                 , 'lon':f['lon'][i1:i2+1]
                                                 , 'lat':f['lat'][i1:i2+1]})
 
                         for jj0 in range(0,jj):
                             jjj = np.where(f['lptid'] == east_prop_group_df_sort['lptid'].values[jj0])[0][0]
-                            i1 = f['i1'][jjj]+east_prop_group_df_sort['begin_indx'].values[jj0]
-                            i2 = f['i1'][jjj]+east_prop_group_df_sort['end_indx'].values[jj0]
+                            i1 = f['i1'][jjj] + averaging_time_hours // interval_hours + east_prop_group_df_sort['begin_indx'].values[jj0]
+                            i2 = f['i1'][jjj] + averaging_time_hours // interval_hours + east_prop_group_df_sort['end_indx'].values[jj0]
                             points0 =  pd.DataFrame.from_dict({'ts':ts[i1:i2+1]
                                                     , 'lon':f['lon'][i1:i2+1]
                                                     , 'lat':f['lat'][i1:i2+1]})
@@ -577,7 +579,7 @@ def do_mjo_id(dt_begin, dt_end, interval_hours, averaging_time_hours, opts, prod
 
                         print('LPT ID ' + str(east_prop_group_df_sort['lptid'].values[jj]) + ' is selected as an MJO event.')
                         jjj = np.where(f['lptid'] == east_prop_group_df_sort['lptid'].values[jj])[0][0]
-                        i1 = f['i1'][jjj]
+                        i1 = f['i1'][jjj] + averaging_time_hours // interval_hours
                         i2 = f['i2'][jjj]
                         this_lpt_time = ts[i1:i2+1]
 
@@ -598,8 +600,8 @@ def do_mjo_id(dt_begin, dt_end, interval_hours, averaging_time_hours, opts, prod
                                             , east_prop_group_df_sort['total_zonal_spd'].values[jj]
                                             , year11, month11, day11, hour11
                                             , year22, month22, day22, hour22
-                                            , east_prop_group_df_sort['begin_indx'].values[jj]
-                                            , east_prop_group_df_sort['end_indx'].values[jj]
+                                            , east_prop_group_df_sort['begin_indx'].values[jj] + averaging_time_hours // interval_hours
+                                            , east_prop_group_df_sort['end_indx'].values[jj] + averaging_time_hours // interval_hours
                                             , east_prop_group_df_sort['segment_zonal_spd'].values[jj]
                                             , east_prop_group_df_sort['duration'].values[jj]
                                             , this_lpt_time[ii1].year, this_lpt_time[ii1].month, this_lpt_time[ii1].day, this_lpt_time[ii1].hour
